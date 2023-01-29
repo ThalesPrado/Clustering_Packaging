@@ -34,7 +34,7 @@ Here a picture of each cluster
 
 
 
-***Main goal of the project is to create a rational to reduce the packing tacking into account number of items solds and margin per SKU. Here for instance all the items in cluster would be recommended to take this action to improve margin**.
+***Main goal of the project is to create a rational to reduce the packaging taking into account number of items solds and margin per SKU. Here for instance all the items in cluster 2 possibly could be used to reduce the packaging to improve margin**.
 
 
 Thank you 🙏
