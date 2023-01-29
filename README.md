@@ -39,4 +39,3 @@ Here a picture of each cluster
 
 Thank you 🙏
 
-![Uploading Clsuter.png…]()
