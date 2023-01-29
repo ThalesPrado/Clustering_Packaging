@@ -1,0 +1,93 @@
+pacotes <- c("lubridate","grDevices","stats","tidyr","dplyr","ClusterR","gmm","dmm","readr","mclust","factoextra","MASS")
+
+## Install all the needed packages to deploy the model
+
+if(sum(as.numeric(!pacotes %in% installed.packages()))!= 0){
+  instalador <- pacotes[!pacotes %in% installed.packages()]
+  for (i in 1: length(instalador)) {
+    install.packages(instalador,dependencies = T)
+    break()}
+  sapply(pacotes, require, character = T)
+} else {
+  sapply(pacotes,require,character = T)
+}
+
+## Bringing the csv to R
+datacluster <- read.csv("C:\\Users\\thale\\Desktop\\Excel\\20232801_Clustering.csv",
+                        sep = ";")
+str(datacluster) ## Verify the structure of the dataset
+View(head(datacluster)) ## Check dataset
+dim(datacluster) ## Total of rows and columns
+
+## Convert data
+datacluster$Margin <- gsub(",",".",datacluster$Margin)
+datacluster$Margin <- as.numeric(datacluster$Margin)
+datacluster$IDProduct <- as.factor(datacluster$IDProduct)
+
+
+## Fixing the data to run the model
+rownames(datacluster) <- c(datacluster$IDProduct)
+head(datacluster)
+
+## Deleting first column
+datacluster2 <- datacluster[ ,-1]
+
+## replace missing values
+datacluster2 <- na.omit(datacluster2)
+
+## scaling data
+scale_data <- scale(datacluster2)
+
+
+## Calculating the distance
+res.dist <- dist(x = scale_data,
+                 method = "euclidean")
+
+## view the measurements
+x <- as.matrix(res.dist)
+x
+
+## Round values
+round(x, digits = 3)
+
+## Running model
+modelcluster <- hclust(d = res.dist,
+                       method = "complete")
+plot(x = modelcluster)
+
+
+# Plot methods to validate ideal number of clusters
+p1 <- fviz_nbclust(scale_data, FUN = hcut, method = "wss", 
+                   k.max = 10) +
+  ggtitle("(A) Elbow method")
+p2 <- fviz_nbclust(scale_data, FUN = hcut, method = "silhouette", 
+                   k.max = 10) +
+  ggtitle("(B) Silhouette method")
+p3 <- fviz_nbclust(scale_data, FUN = hcut, method = "gap_stat", 
+                   k.max = 10) +
+  ggtitle("(C) Gap statistic")
+
+# Display plots side by side
+gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
+
+## Plotting Model
+fviz_dend(x = modelcluster, cex = 0.7, lwd = 0.7, k = 5,
+          rect = TRUE,
+          rect_border = "gray",
+          rect_fill = FALSE,
+          horiz = TRUE)
+
+
+## Getting the cluster per product
+vector_Cluster <- cutree(modelcluster,5)
+vector_Cluster
+
+
+## Saving the cluster information in a data frame
+dataclusterfinal <- data.frame(datacluster, Cluster = vector_Cluster)
+View(dataclusterfinal)
+
+
+## Box plot cluster per variable
+boxplot(datacluster$TotalSold~vector_Cluster)
+boxplot(datacluster$Margin~vector_Cluster)
